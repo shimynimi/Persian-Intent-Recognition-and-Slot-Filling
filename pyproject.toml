@@ -1,0 +1,24 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "persian-intent-baseline"
+version = "0.1.0"
+description = "A reproducible TF-IDF baseline for Persian intent classification on MASSIVE"
+requires-python = ">=3.10"
+dependencies = [
+  "datasets>=2.17,<4.0",
+  "joblib>=1.3,<2.0",
+  "scikit-learn>=1.3,<2.0",
+]
+
+[project.optional-dependencies]
+dev = ["pytest>=7.4,<9.0"]
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.pytest.ini_options]
+pythonpath = ["src"]
+testpaths = ["tests"]
