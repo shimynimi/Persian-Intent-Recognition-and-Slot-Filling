@@ -1,83 +1,96 @@
 # Persian Intent Recognition and Slot Filling
 
-This repository contains exploratory NLP experiments for **Persian (fa-IR)** using the [MASSIVE dataset](https://github.com/amazon-science/massive). The project explores how a Persian-language assistant can identify a user's intent and extract slot values from an utterance.
+This repository collects experiments on **Persian-language understanding** using the Persian (`fa-IR`) configuration of the [MASSIVE dataset](https://github.com/amazon-science/massive). It explores related but distinct tasks: classifying utterance intents, labeling slot values, and generating example utterances conditioned on an intent.
 
-## Task overview
+To make the experiments easier to inspect and reproduce, the repository now includes a small, clean **TF–IDF + logistic-regression intent-classification baseline** alongside the original exploratory notebooks. The notebooks are preserved rather than silently rewritten.
 
-- **Intent recognition:** classify an utterance by the action or request it expresses.
-- **Slot filling:** label spans or tokens that represent useful values, such as a time or other entity.
-- **Language focus:** Persian (fa-IR).
+## Project scope
 
-## Experiments
+- **Intent classification:** predict the intent label from a Persian utterance.
+- **Slot filling:** assign token-level labels to values expressed in an utterance.
+- **Intent-conditioned generation:** explore generating utterances from intent descriptions.
 
-The work is currently organized as three Jupyter notebooks:
+These are different tasks and their metrics are not directly comparable.
 
-| Notebook | Focus |
+## Selected experiments
+
+| Path | Focus |
 | --- | --- |
-| Part1.ipynb | Dataset loading, a TF–IDF/logistic-regression baseline, and a BERT-based classification experiment |
-| Part2.ipynb | Preprocessing and sequence-tagging experiments, including an LSTM-style model and Persian BERT token classification |
-| Part3.ipynb | An exploratory sequence-to-sequence experiment using ParsT5, with text-generation evaluation metrics |
+| `src/persian_intent/baseline.py` | Reproducible intent-classification baseline using word and character TF–IDF features with logistic regression |
+| `Part1.ipynb` | Exploratory baseline/classifier experiments. Some cells target the dataset's `scenario` field, so check the target column before interpreting results as intent classification |
+| `Part2.ipynb` | Slot-label preprocessing, an LSTM-CRF experiment, and a Persian BERT token-classification experiment |
+| `Part3.ipynb` | Exploratory ParsT5 experiment that generates utterances conditioned on intent descriptions |
 
-Model families and evaluation procedures differ between notebooks. These experiments should not be interpreted as a controlled benchmark comparison until the data splits, evaluation subsets, label alignment, and metrics have been standardized.
+## Clean baseline: setup and run
 
-## Dataset
+The baseline uses the official MASSIVE training split for fitting, and reports separate validation and test metrics. It writes the trained model and detailed metrics under `artifacts/`, which is ignored by Git.
 
-The notebooks load the Persian configuration of the MASSIVE dataset through Hugging Face Datasets:
+### Requirements
 
-~~~python
-from datasets import load_dataset
+- Python 3.10+
+- Internet access on first run to download MASSIVE and any required package/model artifacts
 
-dataset = load_dataset("AmazonScience/massive", "fa-IR")
+Create an environment and install the project:
+
+~~~bash
+python -m venv .venv
+source .venv/bin/activate
+# On Windows: .venv\\Scripts\\activate
+python -m pip install -e ".[dev]"
 ~~~
 
-Please consult the dataset's original documentation for its intended use, schema, and licensing terms.
+Run the baseline:
 
-## Environment
+~~~bash
+python -m persian_intent.baseline
+~~~
 
-The notebooks use Python and libraries from the Hugging Face and PyTorch ecosystems. Depending on the notebook, dependencies include:
+Optional arguments:
 
-- datasets
-- transformers
-- torch
-- scikit-learn
-- seqeval
-- evaluate
-- accelerate
-- pandas, numpy, matplotlib, and seaborn
+~~~bash
+python -m persian_intent.baseline --max-features 80000 --max-iter 1000 --output-dir artifacts/persian-intent-baseline
+~~~
 
-Several notebook cells install packages inline. Exact dependency versions and hardware requirements have not yet been consolidated into a pinned environment file.
+The output directory contains:
 
-## Running the experiments
+- `model.joblib` — fitted scikit-learn pipeline plus dataset/label metadata
+- `metrics.json` — validation and test accuracy, macro-F1, weighted-F1, and per-intent classification reports
 
-1. Clone or download this repository.
-2. Open the notebook you want to explore in Jupyter or Google Colab.
-3. Install the dependencies required by that notebook.
-4. Run the notebook from top to bottom and review the label mapping and data split before training.
-5. When evaluating a model, use the full held-out test set and report metrics appropriate to the task.
+Use the **validation** split for model selection. Treat the **test** score as final reporting only; repeated tuning on the test set makes it less informative.
 
-Transformer fine-tuning can require significant compute; a GPU may be helpful.
+## Tests
 
-## Evaluation notes
+The unit tests use small in-memory examples and do not download MASSIVE:
 
-This is an exploratory project rather than a finalized benchmark. The existing notebooks use different model architectures, sample sizes, and evaluation approaches. Before drawing conclusions across models, the following should be checked and made consistent:
+~~~bash
+pytest
+~~~
 
-- Intent classification versus token-level slot-filling metrics
-- Alignment of word-level slot labels with subword tokens
-- Full validation/test-set evaluation rather than small demonstration subsets
-- Macro- and micro-averaged scores, per-label performance, and class imbalance
-- Reproducible random seeds and documented model/configuration choices
+## Original notebooks
 
-For that reason, this README does not present a single headline accuracy as the performance of the overall system.
+The three notebooks document exploratory work with additional model families. They may install packages inline and use different sample sizes, architectures, or evaluation procedures. For now, they are retained as historical experiments; the clean baseline is the recommended entry point for a reproducible, inspectable run.
 
-## Suggested next steps
+To run a notebook, open it in Jupyter or Google Colab, inspect its data-loading and model-configuration cells, and execute it from top to bottom. Transformer fine-tuning may benefit from a GPU.
 
-- Consolidate shared dataset and preprocessing code into a small Python package.
-- Keep intent classification and slot filling as separate, clearly evaluated tasks.
-- Add a pinned requirements.txt or environment file.
-- Add tests for label alignment and dataset preprocessing.
-- Log configurations and metrics in a consistent format.
-- Document the exact experimental contribution of each notebook.
+## Evaluation and limitations
+
+This repository is a work in progress, not a finalized benchmark. In particular:
+
+- The notebook experiments do not yet share one standardized evaluation protocol.
+- Slot-filling requires careful alignment of word-level labels with subword tokens, and evaluation should exclude padding/special-token positions.
+- Intent classification, token-level slot filling, and text generation require different metrics.
+- The generation notebook evaluates outputs on a small exploratory subset and uses a metric configuration that should be reviewed before drawing conclusions.
+- Results on MASSIVE alone do not establish robustness in real deployment settings.
+
+The clean baseline reports standard classification metrics but should still be compared with other models under controlled conditions before any performance claims are made.
+
+## Next steps
+
+- Add controlled model comparisons using identical official data splits.
+- Validate normalization and slot-label alignment, including BIO/BIOES conventions if used.
+- Add a clear benchmark protocol, random seeds, and per-class error analysis.
+- Document the exact environment and model revisions used for the original notebook experiments.
 
 ## Technologies
 
-Python · Hugging Face Datasets · Transformers · PyTorch · Persian NLP · Intent Classification · Sequence Labelling · Slot Filling · Evaluation
+Python · scikit-learn · Hugging Face Datasets · Transformers · PyTorch · Persian NLP · Intent Classification · Sequence Labelling · Slot Filling
