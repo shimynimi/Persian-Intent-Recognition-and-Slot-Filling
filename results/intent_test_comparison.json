@@ -1,0 +1,48 @@
+{
+  "dataset": "AmazonScience/massive",
+  "config": "fa-IR",
+  "dataset_revision_for_baseline_artifacts": "9b095d98489fd72fef8fcde2aee186df56b7d281",
+  "target": "intent",
+  "n_labels": 60,
+  "split_sizes": {
+    "train": 11514,
+    "validation": 2033,
+    "test": 2974
+  },
+  "test": {
+    "logistic_regression": {
+      "accuracy": 0.8238063214525891,
+      "macro_f1_all_60": 0.7526058896815584,
+      "macro_f1_present_59": 0.7653619217100595,
+      "weighted_f1": 0.8258959448394153
+    },
+    "persian_bert": {
+      "accuracy": 0.8577673167451244,
+      "macro_f1_all_60": 0.785700227314456,
+      "macro_f1_present_59": 0.7990171803197857,
+      "weighted_f1": 0.8546318749654603
+    },
+    "paired_comparison": {
+      "both_correct": 2329,
+      "both_wrong": 302,
+      "bert_only_correct": 222,
+      "logistic_regression_only_correct": 121,
+      "mcnemar_exact_two_sided_p": 5.39994196258019e-8,
+      "accuracy_difference_bootstrap_95_percent_interval": [
+        0.02219233355749828,
+        0.04572965702757226
+      ]
+    }
+  },
+  "exact_text_overlap_diagnostic": {
+    "test_rows_seen_in_train": 210,
+    "distinct_overlapping_raw_texts": 177,
+    "overlapping_test_rows_with_conflicting_train_label": 8,
+    "test_rows_with_unseen_raw_text": 2764,
+    "unseen_raw_text_accuracy": {
+      "logistic_regression": 0.8133140376266281,
+      "persian_bert": 0.8505788712011577
+    }
+  },
+  "interpretation": "These are results from one fitted run per model on this test split. Paired statistics do not quantify training-seed variability."
+}
