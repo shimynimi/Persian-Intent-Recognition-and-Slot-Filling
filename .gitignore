@@ -12,10 +12,14 @@ venv/
 .env.*
 !.env.example
 
-# Generated artifacts and model files
+# Generated artifacts, downloaded datasets, and model checkpoints
 artifacts/
 *.joblib
 *.pkl
+*.safetensors
+pytorch_model.bin
+model.safetensors
+data/*.parquet
 
 # Notebook checkpoints
 .ipynb_checkpoints/

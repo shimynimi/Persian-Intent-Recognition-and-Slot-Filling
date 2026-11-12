@@ -1,0 +1,23 @@
+{
+  "model": "HooshvareLab/bert-fa-base-uncased",
+  "task": "Persian intent classification on MASSIVE fa-IR",
+  "variants": {
+    "raw": "Original utterance text",
+    "normalized": "NFC; Arabic Yeh/Kaf canonicalization; remove tatweel and Arabic diacritics; collapse whitespace; preserve ZWNJ and punctuation"
+  },
+  "seeds": [
+    17,
+    42,
+    123
+  ],
+  "epochs": 3,
+  "batch_size": 16,
+  "learning_rate": 0.00002,
+  "max_length": 128,
+  "train_rows": 11514,
+  "validation_rows": 2033,
+  "test_used": false,
+  "selection_metric": "Mean validation Macro-F1 across three seeds",
+  "preferred_variant_by_validation_macro_f1": "normalized",
+  "note": "This is a validation-only robustness/normalization experiment. Do not describe these values as Test performance. GPU kernels may retain minor nondeterminism despite fixed seeds."
+}
